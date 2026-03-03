@@ -28,21 +28,21 @@ anchor_left = 0.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -210.0
+offset_top = -230.0
 grow_vertical = 0
-custom_minimum_size = Vector2(0, 210)
+custom_minimum_size = Vector2(0, 230)
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/GameUI/BottomPanel"]
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_right = 12
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_bottom = 6
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/GameUI/BottomPanel/MarginContainer"]
 
 [node name="MemoLabel" type="Label" parent="CanvasLayer/GameUI/BottomPanel/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 48)
-size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 40)
+size_flags_vertical = 0
 autowrap_mode = 3
 
 [node name="HSeparator" type="HSeparator" parent="CanvasLayer/GameUI/BottomPanel/MarginContainer/VBoxContainer"]
@@ -54,7 +54,7 @@ text = "THE QUEUE:"
 
 [node name="QueueDisplay" type="Label" parent="CanvasLayer/GameUI/BottomPanel/MarginContainer/VBoxContainer/QueueRow"]
 size_flags_horizontal = 3
-autowrap_mode = 3
+autowrap_mode = 0
 
 [node name="AdvanceButton" type="Button" parent="CanvasLayer/GameUI/BottomPanel/MarginContainer/VBoxContainer"]
 text = "Process Next Memo"

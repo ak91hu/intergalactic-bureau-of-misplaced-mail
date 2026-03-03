@@ -17,7 +17,7 @@ func get_structure_label() -> String:
 
 
 func get_welcome_message() -> String:
-	return "Welcome to the Intergalactic Bureau of Misplaced Mail.\n\nA package of unknown origin is somewhere in our facility. We will use Breadth-First Search to locate it — one agonizing bureaucratic step at a time.\n\nPress 'Process Next Memo' to begin."
+	return "A package is missing. It was always missing. BFS will spread outward level by level until it is found — or we run out of departments. Same thing, really."
 
 
 func initialize(graph_data: Dictionary, start_node: String) -> Dictionary:
@@ -34,7 +34,7 @@ func initialize(graph_data: Dictionary, start_node: String) -> Dictionary:
 	return {
 		"state_changes": [{"id": start_node, "state": "frontier"}],
 		"structure": _build_structure_display(graph_data),
-		"message": "URGENT INTERDEPARTMENTAL MEMO\nTO: All Staff  FROM: The Algorithm\nRE: BFS Protocol Initiated\n\nA package of unknown origin has been detected at the %s. It has been added to THE QUEUE — the sacred list that governs all operations. Do not touch THE QUEUE." % graph_data[start_node]["name"],
+		"message": "FORM BFS-9A FILED — %s is Suspect #1.\nAdded to THE QUEUE. It had no say. THE QUEUE has spoken." % graph_data[start_node]["name"],
 		"is_complete": false
 	}
 
@@ -56,7 +56,7 @@ func _dequeue_next_node(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": [],
-			"message": "BFS COMPLETE — STATUS: Satisfactory (Officially)\n\nTHE QUEUE has been fully processed. All reachable departments have been visited exactly once, as mandated by The Great Algorithm. The mail's current whereabouts remain classified. Submit Form 404 (Not Found) if you require further information.",
+			"message": "BFS COMPLETE — All depts visited. Package still missing.\nDirector Zorp demands a report. Gerald is writing it with crayons.",
 			"is_complete": true
 		}
 
@@ -66,7 +66,7 @@ func _dequeue_next_node(graph_data: Dictionary) -> Dictionary:
 	return {
 		"state_changes": [{"id": _active_node, "state": "visited"}],
 		"structure": _build_structure_display(graph_data),
-		"message": "NOW PROCESSING: %s\n\nThis department has been removed from THE QUEUE and is now under active investigation. An intern has been dispatched with a flashlight and a map from 1987. All neighboring departments will be examined per Sub-Regulation 9, Clause 3(b)." % graph_data[_active_node]["name"],
+		"message": "DEQUEUING: %s\nGerald dispatched. He brought the 1987 map again. We are concerned." % graph_data[_active_node]["name"],
 		"is_complete": false
 	}
 
@@ -80,7 +80,7 @@ func _examine_next_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "PROCESSING COMPLETE: %s\n\nAll neighboring departments have been duly inspected, stamped, and cross-referenced. The intern has returned, mildly traumatized. Proceeding to the next item in THE QUEUE." % graph_data[completed_node]["name"],
+			"message": "%s CLEARED — Gerald survived. Barely.\nNext item in THE QUEUE, please." % graph_data[completed_node]["name"],
 			"is_complete": false
 		}
 
@@ -91,7 +91,7 @@ func _examine_next_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "NEIGHBOR ALREADY VISITED: %s\n\nA duplicate visit request was filed, reviewed by a committee of three senior bureaucrats, found to be entirely redundant, and ceremonially shredded. We do not revisit the visited. That is Policy 7.7.7." % graph_data[neighbor_id]["name"],
+			"message": "%s ALREADY VISITED — duplicate request shredded.\nThree committees, one conclusion: Policy 7.7.7 is eternal." % graph_data[neighbor_id]["name"],
 			"is_complete": false,
 			"examined_edge": {"from": _active_node, "to": neighbor_id}
 		}
@@ -101,7 +101,7 @@ func _examine_next_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [{"id": neighbor_id, "state": "frontier"}],
 			"structure": _build_structure_display(graph_data),
-			"message": "NEIGHBOR DISCOVERED: %s\n\nThis department had absolutely no warning. A notice has been filed and it has been added to THE QUEUE. It must now wait its turn, along with everyone else, for an indeterminate number of business decades." % graph_data[neighbor_id]["name"],
+			"message": "%s DISCOVERED — Status: Blindsided.\nJoins THE QUEUE. Estimated wait: 3 to 400 business decades." % graph_data[neighbor_id]["name"],
 			"is_complete": false,
 			"examined_edge": {"from": _active_node, "to": neighbor_id}
 		}

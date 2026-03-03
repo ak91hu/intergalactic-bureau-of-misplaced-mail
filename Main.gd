@@ -387,7 +387,7 @@ func _add_hint_overlay() -> void:
 	_hint_overlay = Panel.new()
 	_hint_overlay.name = "IntroScreen"
 	_hint_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_hint_overlay.offset_bottom = -210.0
+	_hint_overlay.offset_bottom = -230.0
 	_hint_overlay.mouse_filter  = Control.MOUSE_FILTER_STOP
 
 	var ps := StyleBoxFlat.new()

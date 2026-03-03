@@ -28,7 +28,7 @@ func get_structure_label() -> String:
 
 
 func get_welcome_message() -> String:
-	return "Welcome to the Intergalactic Bureau of Misplaced Mail.\n\nA* Search combines the cost-so-far (g) with a heuristic estimate (h) to guide the search more efficiently than Dijkstra.\n\nf(n) = g(n) + h(n). Lowest f is always expanded next.\n\nHeuristic briefing: the Office of Perpetual Delays has h=10 — it will be skipped entirely.\n\nPress 'Process Next Memo' to begin."
+	return "A* = Dijkstra with a heuristic gut feeling. f = g + h. Lowest f expanded first. The Delays Dept has h=10 and will be skipped entirely. The heuristic never lies. Allegedly."
 
 
 func initialize(graph_data: Dictionary, start_node: String) -> Dictionary:
@@ -53,7 +53,7 @@ func initialize(graph_data: Dictionary, start_node: String) -> Dictionary:
 	return {
 		"state_changes": [{"id": start_node, "state": "frontier"}],
 		"structure": _build_structure_display(graph_data),
-		"message": "A* SEARCH — FORM ASTAR-H1\nRE: Heuristic Pathfinding Protocol\n\nStarting at %s. g=0, h=%d, f=%d.\n\nHeuristics loaded. Delays has h=10 (very high — intuitively it leads away from destination). A* will evaluate lower-h nodes first, finding the optimal path with fewer expansions than Dijkstra." % [graph_data[start_node]["name"], int(h), int(h)],
+		"message": "FORM ASTAR-H1 — HEURISTIC GUIDANCE LOADED.\n%s: g=0, h=%d, f=%d. The Force guides us. (Or the heuristic. Same energy.)" % [graph_data[start_node]["name"], int(h), int(h)],
 		"is_complete": false
 	}
 
@@ -81,7 +81,7 @@ func _extract_min(graph_data: Dictionary) -> Dictionary:
 			return {
 				"state_changes": [],
 				"structure": _build_structure_display(graph_data),
-				"message": "STALE ENTRY DETECTED: %s (f=%d)\n\nThis open set entry is outdated — the node was already closed via a better path. Discarded per A* Protocol Annex H-1B (Lazy Deletion)." % [graph_data[node_id]["name"], int(f)],
+				"message": "STALE OPEN ENTRY: %s (f=%d) — already closed.\nDiscarded per Protocol H-1B. Gerald didn't file it right. He never does." % [graph_data[node_id]["name"], int(f)],
 				"is_complete": false
 			}
 
@@ -95,7 +95,7 @@ func _extract_min(graph_data: Dictionary) -> Dictionary:
 			return {
 				"state_changes": [{"id": _active_node, "state": "visited"}],
 				"structure": _build_structure_display(graph_data),
-				"message": "A* COMPLETE — DESTINATION REACHED\n\nf=%d (g=%d + h=0). Optimal path confirmed.\n\n%s\n\nNote: A* never expanded 'delays' (h=10 made it uncompetitive). Dijkstra would have expanded it. The heuristic saved work." % [int(f), int(g), _build_path_message(graph_data)],
+				"message": "TARGET REACHED! %s — f=%d (g=%d + h=0).\nA* skipped Delays entirely (h=10). Heuristic: correct. Gerald: surprised.\n\n%s" % [graph_data[_active_node]["name"], int(f), int(g), _build_path_message(graph_data)],
 				"is_complete": true
 			}
 
@@ -103,7 +103,7 @@ func _extract_min(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [{"id": _active_node, "state": "visited"}],
 			"structure": _build_structure_display(graph_data),
-			"message": "EXTRACTED (lowest f): %s\n\nf=%d (g=%d + h=%d). This node is now CLOSED. All neighbors will be evaluated for relaxation via A* f-score." % [graph_data[_active_node]["name"], int(f), int(g), int(h)],
+			"message": "EXPANDING: %s — f=%d (g=%d + h=%d). Now closed.\nNeighbors evaluated next. The heuristic trusts this choice." % [graph_data[_active_node]["name"], int(f), int(g), int(h)],
 			"is_complete": false
 		}
 
@@ -111,7 +111,7 @@ func _extract_min(graph_data: Dictionary) -> Dictionary:
 	return {
 		"state_changes": [],
 		"structure": [],
-		"message": "A* COMPLETE — OPEN SET EXHAUSTED\n\nAll reachable nodes have been closed.\n\n%s" % _build_path_message(graph_data),
+		"message": "A* COMPLETE — OPEN SET exhausted.\n%s" % _build_path_message(graph_data),
 		"is_complete": true
 	}
 
@@ -125,7 +125,7 @@ func _relax_next_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "RELAXATION COMPLETE: %s\n\nAll neighbors evaluated. Returning to extract next minimum-f node from OPEN SET." % graph_data[completed_node]["name"],
+			"message": "%s — neighbors done. Next minimum-f from OPEN SET." % graph_data[completed_node]["name"],
 			"is_complete": false
 		}
 
@@ -136,7 +136,7 @@ func _relax_next_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "NEIGHBOR CLOSED: %s\n\nAlready expanded. No re-evaluation needed per A* optimality guarantee." % graph_data[neighbor_id]["name"],
+			"message": "%s CLOSED — already optimal. Skipping.\nA* guarantees correctness. Gerald lost the proof but trusts it." % graph_data[neighbor_id]["name"],
 			"is_complete": false,
 			"examined_edge": {"from": _active_node, "to": neighbor_id}
 		}
@@ -155,7 +155,7 @@ func _relax_next_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [{"id": neighbor_id, "state": "frontier"}],
 			"structure": _build_structure_display(graph_data),
-			"message": "OPEN SET UPDATED: %s\n\ng=%d + h=%d = f=%d. Added to OPEN SET via %s (edge weight: %d). The heuristic rates this route as promising." % [graph_data[neighbor_id]["name"], int(new_g), int(h), int(new_f), graph_data[_active_node]["name"], int(weight)],
+			"message": "%s — f=%d (g=%d + h=%d), via %s.\nAdded to OPEN SET. The heuristic says this route looks promising." % [graph_data[neighbor_id]["name"], int(new_f), int(new_g), int(h), graph_data[_active_node]["name"]],
 			"is_complete": false,
 			"examined_edge": {"from": _active_node, "to": neighbor_id}
 		}
@@ -163,7 +163,7 @@ func _relax_next_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "NO IMPROVEMENT: %s\n\nExisting g=%d is no worse than new g=%d. No update filed. The existing path holds." % [graph_data[neighbor_id]["name"], int(_g[neighbor_id]), int(new_g)],
+			"message": "%s — g=%d not better than existing g=%d. No update.\nExisting path holds. Status quo. Tradition." % [graph_data[neighbor_id]["name"], int(new_g), int(_g[neighbor_id])],
 			"is_complete": false,
 			"examined_edge": {"from": _active_node, "to": neighbor_id}
 		}
@@ -195,4 +195,4 @@ func _build_path_message(graph_data: Dictionary) -> String:
 	for node_id: String in path:
 		path_names.append(graph_data[node_id]["name"])
 
-	return "Optimal path:\n%s\nTotal cost: %d" % [" -> ".join(path_names), int(_g[target])]
+	return "%s — Total: %d credits. Director Zorp: satisfied." % [" -> ".join(path_names), int(_g[target])]

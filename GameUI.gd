@@ -38,11 +38,11 @@ const ALGORITHM_ASCII_ART: Array[String] = [
 	# ── BFS ──────────────────────────────────────────────────
 	"       .  COMMAND HQ  .        \n" +
 	"      -~~  [REDUNDANCY] ~~-    \n" +
-	"     ~      /         \    ~   \n" +
+	"     ~      /         \\    ~   \n" +
 	"    ~   [FORMS]    [DELAYS]  ~ \n" +
-	"    ~    /    \        \     ~ \n" +
+	"    ~    /    \\        \\     ~ \n" +
 	"     ~ [STAMPS][LOST]   ...  ~ \n" +
-	"      ~~~      \       ~~~     \n" +
+	"      ~~~      \\       ~~~     \n" +
 	"           [DESTINATION]       \n" +
 	"                               \n" +
 	"  Level 1 explored COMPLETELY  \n" +
@@ -66,11 +66,11 @@ const ALGORITHM_ASCII_ART: Array[String] = [
 	"  GALACTIC SUPPLY CHAIN LAW:   \n" +
 	"                               \n" +
 	"  [REDUNDANCY]  <- in-degree 0 \n" +
-	"    /         \                \n" +
+	"    /         \\                \n" +
 	"  [FORMS]   [DELAYS]           \n" +
-	"   /    \       \              \n" +
+	"   /    \\       \\              \n" +
 	"[STAMPS][LOST] [LOST]          \n" +
-	"    \    /                     \n" +
+	"    \\    /                     \n" +
 	"  [DESTINATION]                \n" +
 	"                               \n" +
 	"  No dept ships its memos      \n" +

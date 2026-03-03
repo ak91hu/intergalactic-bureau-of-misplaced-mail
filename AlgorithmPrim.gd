@@ -8,7 +8,7 @@ var _key: Dictionary = {}    # minimum cost to connect node to MST
 var _parent: Dictionary = {} # which MST node connects to this node
 var _pq: Array = []          # Array of [cost: float, node_id: String]
 var _mst_edges: Array = []   # Array of [from_id, to_id, cost]
-var _undirected: Dictionary = {}  # node_id → {neighbor_id: weight}
+var _undirected: Dictionary = {}  # node_id -> {neighbor_id: weight}
 var _active_node: String = ""
 var _active_neighbor_index: int = 0
 var _active_neighbors: Array = []
@@ -24,7 +24,7 @@ func get_structure_label() -> String:
 
 
 func get_welcome_message() -> String:
-	return "Welcome to the Intergalactic Bureau of Misplaced Mail.\n\nPrim's Algorithm builds a Minimum Spanning Tree — connecting all departments with the least total bureaucratic overhead. The graph is treated as undirected, and negative weights become absolute values per MST Convention MST-42.\n\nPress 'Process Next Memo' to begin."
+	return "Prim grows the cheapest possible network one connection at a time. Graph treated as undirected. Negative weights absolutized per Policy MST-42. No cycles permitted. That is THE rule. Ask Gerald."
 
 
 func initialize(graph_data: Dictionary, start_node: String) -> Dictionary:
@@ -63,7 +63,7 @@ func initialize(graph_data: Dictionary, start_node: String) -> Dictionary:
 	return {
 		"state_changes": [{"id": start_node, "state": "frontier"}],
 		"structure": _build_structure_display(graph_data),
-		"message": "PRIM'S ALGORITHM — FORM MST-42\nRE: Minimum Spanning Tree Protocol\n\nUndirected adjacency constructed. Starting at the %s (cost: 0). All other departments: ∞.\n\nGoal: connect all 6 departments with minimum total edge weight. Every department must be reached. No cycles permitted. The spanning tree demands efficiency." % graph_data[start_node]["name"],
+		"message": "FORM MST-42 — NETWORK EXPANSION AUTHORIZED.\n%s selected as root. Undirected graph built. The tree is lonely. It has feelings." % graph_data[start_node]["name"],
 		"is_complete": false
 	}
 
@@ -90,7 +90,7 @@ func _extract_min(graph_data: Dictionary) -> Dictionary:
 			return {
 				"state_changes": [],
 				"structure": _build_structure_display(graph_data),
-				"message": "STALE CANDIDATE: %s (cost: %d)\n\nThis department is already in the MST. The entry is discarded per the Lazy Deletion Protocol, Annex MST-42C. The spanning tree does not accept duplicates." % [graph_data[node_id]["name"], int(cost)],
+				"message": "STALE CANDIDATE: %s (cost %d) — already in tree.\nLazy deletion applied per Annex MST-42C. Gerald was not notified." % [graph_data[node_id]["name"], int(cost)],
 				"is_complete": false
 			}
 
@@ -102,12 +102,12 @@ func _extract_min(graph_data: Dictionary) -> Dictionary:
 		if not _parent[node_id].is_empty():
 			_mst_edges.append([_parent[node_id], node_id, cost])
 
-		var parent_str: String = "starting node" if _parent[node_id].is_empty() else graph_data[_parent[node_id]]["name"]
+		var parent_str: String = "root (no parent)" if _parent[node_id].is_empty() else graph_data[_parent[node_id]]["name"]
 
 		return {
 			"state_changes": [{"id": _active_node, "state": "visited"}],
 			"structure": _build_structure_display(graph_data),
-			"message": "ADDED TO MST: %s (cost: %d)\n\nConnected via: %s. This department is now officially part of the Minimum Spanning Tree. Its neighbors will be evaluated for cheaper connections." % [graph_data[_active_node]["name"], int(cost), parent_str],
+			"message": "ADDED TO MST: %s — %d credits via %s.\nThe network grows. Director Zorp approves. Marginally." % [graph_data[_active_node]["name"], int(cost), parent_str],
 			"is_complete": false
 		}
 
@@ -116,7 +116,7 @@ func _extract_min(graph_data: Dictionary) -> Dictionary:
 	return {
 		"state_changes": [],
 		"structure": [],
-		"message": "PRIM'S MST COMPLETE — STATUS: Minimally Connected\n\n%s" % _build_mst_message(graph_data),
+		"message": "MST COMPLETE — STATUS: Minimally Connected.\n%s" % _build_mst_message(graph_data),
 		"is_complete": true
 	}
 
@@ -132,14 +132,14 @@ func _update_next_neighbor(graph_data: Dictionary) -> Dictionary:
 			return {
 				"state_changes": [],
 				"structure": [],
-				"message": "PRIM'S MST COMPLETE — STATUS: Minimally Connected\n\n%s" % _build_mst_message(graph_data),
+				"message": "MST COMPLETE — STATUS: Minimally Connected.\n%s" % _build_mst_message(graph_data),
 				"is_complete": true
 			}
 
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "NEIGHBOR UPDATE COMPLETE: %s\n\nAll adjacent departments have been evaluated. Returning to extract the next minimum-cost candidate from the priority queue." % graph_data[completed_node]["name"],
+			"message": "%s — all neighbors evaluated. Fetching next cheapest from PQ." % graph_data[completed_node]["name"],
 			"is_complete": false
 		}
 
@@ -150,7 +150,7 @@ func _update_next_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "NEIGHBOR IN MST: %s\n\nThis department is already in the spanning tree. No update needed. We do not create cycles. That is the one rule." % graph_data[neighbor_id]["name"],
+			"message": "%s already in tree — NO CYCLES.\nThat is THE rule. THE rule. Gerald knows the rule." % graph_data[neighbor_id]["name"],
 			"is_complete": false,
 			"examined_edge": {"from": _active_node, "to": neighbor_id}
 		}
@@ -165,7 +165,7 @@ func _update_next_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [{"id": neighbor_id, "state": "frontier"}],
 			"structure": _build_structure_display(graph_data),
-			"message": "KEY UPDATED: %s\n\nCheaper connection found via %s (cost: %d). Updated in the priority queue. The MST candidate list has been revised accordingly." % [graph_data[neighbor_id]["name"], graph_data[_active_node]["name"], int(weight)],
+			"message": "%s — cheaper via %s (cost %d). Candidate updated.\nGerald files the amendment in triplicate." % [graph_data[neighbor_id]["name"], graph_data[_active_node]["name"], int(weight)],
 			"is_complete": false,
 			"examined_edge": {"from": _active_node, "to": neighbor_id}
 		}
@@ -173,7 +173,7 @@ func _update_next_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "NO UPDATE: %s\n\nExisting connection cost (%d) is no worse than this path (%d). No change filed. The priority queue remains undisturbed." % [graph_data[neighbor_id]["name"], int(_key[neighbor_id]), int(weight)],
+			"message": "%s — existing path (%d) still best. No update.\nConservatism wins again. As usual." % [graph_data[neighbor_id]["name"], int(_key[neighbor_id])],
 			"is_complete": false,
 			"examined_edge": {"from": _active_node, "to": neighbor_id}
 		}
@@ -196,5 +196,5 @@ func _build_mst_message(graph_data: Dictionary) -> String:
 		var to_name: String = graph_data[edge[1]]["name"]
 		var cost: float = edge[2]
 		total_weight += cost
-		lines.append("  %s ↔ %s (cost: %d)" % [from_name, to_name, int(cost)])
-	return "MST Edges:\n%s\n\nTotal MST weight: %d\nAll 6 departments connected with minimum overhead." % ["\n".join(lines), int(total_weight)]
+		lines.append("  %s -- %s (cost %d)" % [from_name, to_name, int(cost)])
+	return "Edges: %s | Total weight: %d. Stamps was last. Cost 8. Gerald judged it." % [", ".join(lines), int(total_weight)]

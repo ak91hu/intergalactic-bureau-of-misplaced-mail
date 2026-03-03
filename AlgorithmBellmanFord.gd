@@ -23,7 +23,7 @@ func get_structure_label() -> String:
 
 
 func get_welcome_message() -> String:
-	return "Welcome to the Intergalactic Bureau of Misplaced Mail.\n\nBellman-Ford finds the shortest path even through negative-weight edges — something Dijkstra refuses to handle. We will run up to |V|−1 = 5 passes over all edges, relaxing distances one edge at a time.\n\nPress 'Process Next Memo' to begin."
+	return "Bellman-Ford handles NEGATIVE edge weights. Dijkstra cannot. This is Dijkstra's deepest shame. Up to 5 passes over all 7 edges. Watch the -2 shortcut slash 4 credits off the final path cost."
 
 
 func initialize(graph_data: Dictionary, start_node: String) -> Dictionary:
@@ -53,7 +53,7 @@ func initialize(graph_data: Dictionary, start_node: String) -> Dictionary:
 	return {
 		"state_changes": [{"id": start_node, "state": "frontier"}],
 		"structure": _build_structure_display(graph_data),
-		"message": "BELLMAN-FORD ALGORITHM — FORM BF-404\nRE: Negative-Weight Shortest Path Protocol\n\nStarting at the %s (cost: 0). All other departments: ∞.\n\n%d edges catalogued. Will run %d passes. Each pass checks every edge. Unlike Dijkstra, we embrace negative weights. They are simply debts, and the Bureau has many." % [graph_data[start_node]["name"], _edges.size(), _num_nodes - 1],
+		"message": "FORM BF-404 — NEGATIVE WEIGHTS WELCOME HERE.\n%s (cost 0). %d edges catalogued. The Bureau embraces debt." % [graph_data[start_node]["name"], _edges.size()],
 		"is_complete": false
 	}
 
@@ -78,7 +78,7 @@ func advance(graph_data: Dictionary) -> Dictionary:
 			return {
 				"state_changes": [],
 				"structure": _build_structure_display(graph_data),
-				"message": "EARLY TERMINATION — Pass %d of %d\n\nNo distances were improved in this pass. The algorithm has converged early. No negative cycles detected. The Bureau's debts are finite after all.\n\n%s" % [pass_num, _num_nodes - 1, _build_path_message(graph_data)],
+				"message": "EARLY TERMINATION — Pass %d had zero improvements.\nConverged! No negative cycle detected. The Bureau's debts are finite. Probably.\n\n%s" % [pass_num, _build_path_message(graph_data)],
 				"is_complete": true
 			}
 
@@ -88,7 +88,7 @@ func advance(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "PASS %d COMPLETE — %d relaxations occurred\n\nAll edges have been examined once. Beginning Pass %d of %d. The Bureau is thorough, if nothing else." % [pass_num, _edges.size(), _current_pass + 1, _num_nodes - 1],
+			"message": "PASS %d DONE — improvements found, proceeding to pass %d.\nThe Bureau is thorough, if nothing else." % [pass_num, _current_pass + 1],
 			"is_complete": false
 		}
 
@@ -101,7 +101,8 @@ func advance(graph_data: Dictionary) -> Dictionary:
 
 	var state_changes: Array = []
 	var msg: String
-	var edge_label: String = "%s → %s (weight: %d)" % [graph_data[from_id]["name"], graph_data[to_id]["name"], weight]
+	var from_name: String = graph_data[from_id]["name"]
+	var to_name: String = graph_data[to_id]["name"]
 
 	if _dist[from_id] != INF and _dist[from_id] + weight < _dist[to_id]:
 		var old_dist: int = _dist[to_id]
@@ -109,12 +110,12 @@ func advance(graph_data: Dictionary) -> Dictionary:
 		_prev[to_id] = from_id
 		_relaxed_in_pass = true
 
-		var old_str: String = "∞" if old_dist == INF else str(old_dist)
+		var old_str: String = "INF" if old_dist == INF else str(old_dist)
 		state_changes.append({"id": to_id, "state": "frontier"})
-		msg = "RELAXATION — Pass %d, Edge %d:\n%s\n\nDistance improved: %s → %d. The negative weight on this corridor has made it surprisingly efficient. The Bureau grudgingly updates its records." % [_current_pass + 1, _current_edge_index, edge_label, old_str, _dist[to_id]]
+		msg = "RELAXED: %s -> %s (w=%d) — %s -> %d credits.\nNegative shortcut? We embrace it. Gerald is confused. That's normal." % [from_name, to_name, weight, old_str, _dist[to_id]]
 	else:
-		var from_str: String = "∞" if _dist[from_id] == INF else str(_dist[from_id])
-		msg = "NO RELAXATION — Pass %d, Edge %d:\n%s\n\nSource distance: %s. No improvement possible. The existing path holds. This edge has been examined and found wanting." % [_current_pass + 1, _current_edge_index, edge_label, from_str]
+		var from_str: String = "INF" if _dist[from_id] == INF else str(_dist[from_id])
+		msg = "CHECKED: %s -> %s (w=%d) — source=%s, no improvement.\nMoving on. The status quo holds. Barely." % [from_name, to_name, weight, from_str]
 
 	return {
 		"state_changes": state_changes,
@@ -143,7 +144,7 @@ func _finalize(graph_data: Dictionary) -> Dictionary:
 	return {
 		"state_changes": state_changes,
 		"structure": _build_structure_display(graph_data),
-		"message": "BELLMAN-FORD COMPLETE — %d passes executed\n\nNo negative cycles detected (if there were, distances would keep decreasing — they did not).\n\n%s" % [_current_pass, _build_path_message(graph_data)],
+		"message": "BF COMPLETE — %d passes executed.\n%s" % [_current_pass, _build_path_message(graph_data)],
 		"is_complete": true
 	}
 
@@ -152,7 +153,7 @@ func _build_structure_display(graph_data: Dictionary) -> Array:
 	var result: Array = []
 	for node_id: String in graph_data.keys():
 		var cost: int = _dist.get(node_id, INF)
-		var cost_str: String = "∞" if cost == INF else str(cost)
+		var cost_str: String = "INF" if cost == INF else str(cost)
 		result.append("%s: %s" % [graph_data[node_id]["name"], cost_str])
 	return result
 
@@ -172,4 +173,4 @@ func _build_path_message(graph_data: Dictionary) -> String:
 	for node_id: String in path:
 		path_names.append(graph_data[node_id]["name"])
 
-	return "Shortest path to Actual Mail Delivery*:\n%s\nTotal cost: %d (negative edges included)" % [" → ".join(path_names), _dist[target]]
+	return "%s — cost %d (Dijkstra would've said 9). One of them is correct. Hint: it's Bellman-Ford." % [" -> ".join(path_names), _dist[target]]

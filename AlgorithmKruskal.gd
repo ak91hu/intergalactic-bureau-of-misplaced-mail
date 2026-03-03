@@ -19,7 +19,7 @@ func get_structure_label() -> String:
 
 
 func get_welcome_message() -> String:
-	return "Welcome to the Intergalactic Bureau of Misplaced Mail.\n\nKruskal's Algorithm builds a Minimum Spanning Tree by sorting ALL edges globally and greedily accepting the cheapest edge that does not create a cycle.\n\nUnion-Find with path compression tracks connected components. Compare to Prim's: same MST weight (11), different discovery order.\n\nPress 'Process Next Memo' to begin."
+	return "Kruskal: sort ALL edges globally, greedily accept the cheapest that won't create a cycle. Union-Find prevents loops. Same MST as Prim (weight 11), but Kruskal may build disconnected fragments first. It's fine."
 
 
 func initialize(graph_data: Dictionary, _start_node: String) -> Dictionary:
@@ -51,7 +51,7 @@ func initialize(graph_data: Dictionary, _start_node: String) -> Dictionary:
 	return {
 		"state_changes": [],
 		"structure": _build_structure_display(graph_data),
-		"message": "KRUSKAL'S ALGORITHM — FORM KRU-7F\nRE: Minimum Spanning Tree (Global Sort)\n\n%d edges sorted by ascending weight (abs values).\nUnion-Find initialized — each department is its own component.\n\nGoal: accept N-1 = %d edges without creating cycles.\nTarget MST weight: 11 (same as Prim's MST)." % [_sorted_edges.size(), graph_data.size() - 1],
+		"message": "FORM KRU-7F — %d EDGES SORTED BY WEIGHT.\nUnion-Find initialized. Each dept is its own island. MST budget: 11 credits." % _sorted_edges.size(),
 		"is_complete": false
 	}
 
@@ -69,13 +69,13 @@ func advance(graph_data: Dictionary) -> Dictionary:
 			return {
 				"state_changes": sc,
 				"structure": [],
-				"message": "MST COMPLETE — STATUS: Minimally Connected\n\n%s" % _build_mst_message(graph_data),
+				"message": "KRUSKAL COMPLETE — MST weight: %d.\nSame as Prim's. Both found the truth. Director Zorp accepts both reports." % _mst_weight(),
 				"is_complete": true
 			}
 		return {
 			"state_changes": sc,
 			"structure": _build_structure_display(graph_data),
-			"message": "EDGE CONFIRMED — both departments inducted into MST. %d of %d edges accepted. Total weight so far: %d." % [_mst_edges.size(), graph_data.size() - 1, _mst_weight()],
+			"message": "EDGE %d of %d confirmed. Running weight: %d.\nGerald files the paperwork. Again." % [_mst_edges.size(), graph_data.size() - 1, _mst_weight()],
 			"is_complete": false
 		}
 
@@ -84,7 +84,7 @@ func advance(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": [],
-			"message": "MST COMPLETE — STATUS: Minimally Connected\n\n%s" % _build_mst_message(graph_data),
+			"message": "KRUSKAL COMPLETE — MST weight: %d.\nSame as Prim's. Both found the truth. Director Zorp accepts both reports." % _mst_weight(),
 			"is_complete": true
 		}
 
@@ -93,7 +93,7 @@ func advance(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": [],
-			"message": "KRUSKAL'S COMPLETE — All edges examined.\n\n%s" % _build_mst_message(graph_data),
+			"message": "KRUSKAL COMPLETE — All edges examined. MST weight: %d.\nDirector Zorp is pleased. Gerald is exhausted." % _mst_weight(),
 			"is_complete": true
 		}
 
@@ -110,7 +110,7 @@ func advance(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "REJECTED — CYCLE DETECTED\n\nEdge: %s <-> %s (weight: %d)\n\nBoth departments are already in the same component. Adding this edge would create a cycle. Form CYCLE-ERR filed and ceremonially shredded." % [graph_data[from_id]["name"], graph_data[to_id]["name"], weight],
+			"message": "REJECTED — %s <-> %s (w=%d) would create a CYCLE.\nForm CYCLE-ERR filed, reviewed, and ceremonially shredded. No cycles. Ever." % [graph_data[from_id]["name"], graph_data[to_id]["name"], weight],
 			"is_complete": false,
 			"examined_edge": {"from": from_id, "to": to_id}
 		}
@@ -124,7 +124,7 @@ func advance(graph_data: Dictionary) -> Dictionary:
 				{"id": to_id,   "state": "frontier"}
 			],
 			"structure": _build_structure_display(graph_data),
-			"message": "ACCEPTED — EDGE ADDED TO MST\n\nEdge: %s <-> %s (weight: %d)\n\nComponents merged. MST edge %d of %d accepted. Total MST weight so far: %d." % [graph_data[from_id]["name"], graph_data[to_id]["name"], weight, _mst_edges.size(), graph_data.size() - 1, _mst_weight()],
+			"message": "ACCEPTED — %s <-> %s (w=%d). Edge %d of %d.\nComponents merged. Running MST weight: %d." % [graph_data[from_id]["name"], graph_data[to_id]["name"], weight, _mst_edges.size(), graph_data.size() - 1, _mst_weight()],
 			"is_complete": false,
 			"examined_edge": {"from": from_id, "to": to_id}
 		}
@@ -173,6 +173,6 @@ func _build_mst_message(graph_data: Dictionary) -> String:
 	var lines: Array = []
 	var total: int = 0
 	for edge: Array in _mst_edges:
-		lines.append("  %s <-> %s (weight: %d)" % [graph_data[edge[0]]["name"], graph_data[edge[1]]["name"], edge[2]])
+		lines.append("  %s <-> %s (w%d)" % [graph_data[edge[0]]["name"], graph_data[edge[1]]["name"], edge[2]])
 		total += edge[2]
-	return "MST Edges:\n%s\n\nTotal MST weight: %d\nAll 6 departments connected with minimum overhead.\nSame total as Prim's (both find the true MST), different discovery order." % ["\n".join(lines), total]
+	return "MST Edges:\n%s\n\nTotal: %d. Same as Prim's. Director Zorp accepts both reports." % ["\n".join(lines), total]

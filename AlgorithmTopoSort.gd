@@ -19,7 +19,7 @@ func get_structure_label() -> String:
 
 
 func get_welcome_message() -> String:
-	return "Welcome to the Intergalactic Bureau of Misplaced Mail.\n\nTopological Sort (Kahn's Algorithm) orders departments by dependency: no department is processed until all departments that feed into it have been cleared first.\n\nOnly departments with zero incoming memos may proceed. Press 'Process Next Memo' to begin."
+	return "No department ships until its in-box is completely empty. Kahn's Algorithm enforces this with extreme bureaucratic prejudice. Only zero-dependency depts may proceed. Everyone else waits. Indefinitely."
 
 
 func initialize(graph_data: Dictionary, _start_node: String) -> Dictionary:
@@ -53,7 +53,7 @@ func initialize(graph_data: Dictionary, _start_node: String) -> Dictionary:
 	return {
 		"state_changes": state_changes,
 		"structure": _build_structure_display(graph_data),
-		"message": "TOPOLOGICAL SORT — FORM TOPO-7K\nRE: Kahn's Algorithm Initiated\n\nIn-degrees computed. All departments with zero incoming dependencies have been cleared for immediate processing:\n\n%s\n\nAll others must wait." % "\n".join(in_degree_lines),
+		"message": "FORM TOPO-7K — Dependency audit complete.\nIn-degrees computed. Current queue: %d dept(s) with zero obligations." % _queue.size(),
 		"is_complete": false
 	}
 
@@ -76,7 +76,7 @@ func _dequeue_next_node(graph_data: Dictionary) -> Dictionary:
 			return {
 				"state_changes": [],
 				"structure": [],
-				"message": "CYCLE DETECTED — ERROR FORM ERR-999\n\nThe queue is empty but not all departments have been processed. A bureaucratic cycle has been detected: Department A is waiting for Department B, which is waiting for Department A. This is either a paradox or standard office procedure.",
+				"message": "CYCLE DETECTED — Form ERR-999 filed.\nDept A waits for B. B waits for A. This is either a paradox or standard procedure.",
 				"is_complete": true
 			}
 		var order_names: Array = []
@@ -85,7 +85,7 @@ func _dequeue_next_node(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": [],
-			"message": "TOPOLOGICAL SORT COMPLETE — STATUS: Properly Ordered\n\nAll departments have been processed in valid dependency order:\n\n%s\n\nNo department was processed before its prerequisites. This is, frankly, unprecedented." % " → ".join(order_names),
+			"message": "TOPO SORT COMPLETE — Valid ordering achieved. Unprecedented.\n%s" % " -> ".join(order_names),
 			"is_complete": true
 		}
 
@@ -96,7 +96,7 @@ func _dequeue_next_node(graph_data: Dictionary) -> Dictionary:
 	return {
 		"state_changes": [{"id": _active_node, "state": "visited"}],
 		"structure": _build_structure_display(graph_data),
-		"message": "PROCESSING: %s\n\nThis department has zero remaining dependencies and has been cleared from the queue. It will now have its in-degree contributions removed from all downstream departments. The paperwork cascade begins." % graph_data[_active_node]["name"],
+		"message": "CLEARED: %s — in-box empty, authorized to process.\nPaperwork cascade begins. Gerald, brace yourself." % graph_data[_active_node]["name"],
 		"is_complete": false
 	}
 
@@ -110,7 +110,7 @@ func _decrement_neighbor(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": "DEPENDENCY PASS COMPLETE: %s\n\nAll downstream departments have had their incoming memo counts decremented. Any that reached zero have been added to the processing queue. The cascade is complete. For now." % graph_data[completed_node]["name"],
+			"message": "%s — all outgoing dependencies notified.\nTHE QUEUE updated. Moving on." % graph_data[completed_node]["name"],
 			"is_complete": false
 		}
 
@@ -124,9 +124,9 @@ func _decrement_neighbor(graph_data: Dictionary) -> Dictionary:
 	if _in_degree[neighbor_id] == 0:
 		_queue.append(neighbor_id)
 		state_changes.append({"id": neighbor_id, "state": "frontier"})
-		msg = "DEPENDENCY CLEARED: %s\n\nThis department's incoming memo count has dropped to zero. It has been added to the processing queue and will soon be free from bureaucratic interdependency. A minor miracle." % graph_data[neighbor_id]["name"]
+		msg = "%s UNBLOCKED — final dependency cleared! Added to queue.\nA minor miracle. Director Zorp is cautiously optimistic." % graph_data[neighbor_id]["name"]
 	else:
-		msg = "IN-DEGREE DECREMENTED: %s\n\nThis department now has %d remaining incoming dependencies. It must continue to wait. Patience is a bureaucratic virtue. (Also mandatory.)" % [graph_data[neighbor_id]["name"], _in_degree[neighbor_id]]
+		msg = "%s — still has %d incoming dependenc(ies). It waits.\nPatience is mandatory per Regulation 4-C, Sub-Clause 7." % [graph_data[neighbor_id]["name"], _in_degree[neighbor_id]]
 
 	return {
 		"state_changes": state_changes,

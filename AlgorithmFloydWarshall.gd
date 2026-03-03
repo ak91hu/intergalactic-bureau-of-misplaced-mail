@@ -19,7 +19,7 @@ func get_structure_label() -> String:
 
 
 func get_welcome_message() -> String:
-	return "Welcome to the Intergalactic Bureau of Misplaced Mail.\n\nFloyd-Warshall computes shortest paths between ALL pairs of nodes in 6 passes — one per intermediate node k.\n\nUnlike Dijkstra, it uses REAL edge weights including the -2 shortcut on forms->lost. Watch the redundancy->destination distance improve from INF to 5.\n\nPress 'Process Next Memo' to begin."
+	return "Floyd-Warshall: O(V^3) = 216 operations to find ALL shortest paths between ALL pairs. 6 passes. Real edge weights — the -2 shortcut is included. Watch redundancy->destination drop from INF to 5. Dijkstra never knew."
 
 
 func initialize(graph_data: Dictionary, _start_node: String) -> Dictionary:
@@ -51,7 +51,7 @@ func initialize(graph_data: Dictionary, _start_node: String) -> Dictionary:
 	return {
 		"state_changes": [],
 		"structure": _build_structure_display(graph_data),
-		"message": "FLOYD-WARSHALL — FORM FW-INF\nRE: All-Pairs Shortest Path Protocol\n\nDistance matrix initialized. Direct edges loaded with REAL weights (negative -2 edge included).\n\nWill run 6 passes (k=0..5). Each pass k considers routing all pairs through node k. Key moment: pass k=4 (via lost) will reduce redundancy->destination from INF to 5.\n\nInitial distances shown are direct-edge only.",
+		"message": "FORM FW-INF — ALL-PAIRS MATRIX INITIALIZED.\nDirect edges loaded. The -2 edge is real here. k=0..5 queued. Director Zorp is watching.",
 		"is_complete": false
 	}
 
@@ -79,13 +79,13 @@ func advance(graph_data: Dictionary) -> Dictionary:
 
 	var msg: String
 	if improvements.is_empty():
-		msg = "PASS k=%d — Relay: %s\n\nNo improvements. No pair benefits from routing through the %s as an intermediate node." % [ki, graph_data[k_id]["name"], graph_data[k_id]["name"]]
+		msg = "k=%d via %s — no improvements.\n%s is not a useful relay node. It has accepted this." % [ki, graph_data[k_id]["name"], graph_data[k_id]["name"]]
 	else:
 		var lines: Array = []
 		for imp: Array in improvements:
 			var old_str: String = "INF" if imp[2] == INF else str(imp[2])
-			lines.append("  %s -> %s: %s -> %d" % [graph_data[imp[0]]["name"], graph_data[imp[1]]["name"], old_str, imp[3]])
-		msg = "PASS k=%d — Relay: %s\n\n%d path(s) improved via %s:\n%s" % [ki, graph_data[k_id]["name"], improvements.size(), graph_data[k_id]["name"], "\n".join(lines)]
+			lines.append("%s->%s: %s -> %d" % [graph_data[imp[0]]["name"], graph_data[imp[1]]["name"], old_str, imp[3]])
+		msg = "k=%d via %s — %d path(s) improved.\n%s" % [ki, graph_data[k_id]["name"], improvements.size(), " | ".join(lines)]
 
 	if _k >= _node_ids.size():
 		_is_complete_flag = true
@@ -98,7 +98,7 @@ func advance(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": msg + "\n\n--- FLOYD-WARSHALL COMPLETE ---\nAll 6 passes executed.\n\nredundancy -> destination = %s\n(via forms->lost: 3 + (-2) + 4 = 5)\n\nCompare: Dijkstra gives 9 (abs weights). Floyd-Warshall gives 5 (real weights). The -2 edge changes everything." % rd_str,
+			"message": msg + "\n\nFW COMPLETE — redundancy->destination = %s (3 + -2 + 4 = 5).\nDijkstra said 9. One of them is wrong. Director Zorp knows which." % rd_str,
 			"is_complete": true
 		}
 
@@ -125,7 +125,7 @@ func _finalize(graph_data: Dictionary) -> Dictionary:
 	return {
 		"state_changes": [],
 		"structure": _build_structure_display(graph_data),
-		"message": "FLOYD-WARSHALL COMPLETE — All passes executed.\n\nredundancy -> destination = %s\n\nNegative edge accounted for. The Bureau's debts are assets." % rd_str,
+		"message": "FW COMPLETE — redundancy->destination = %s credits.\n(3 + -2 + 4 = 5). Dijkstra said 9. The -2 edge changes everything." % rd_str,
 		"is_complete": true
 	}
 
