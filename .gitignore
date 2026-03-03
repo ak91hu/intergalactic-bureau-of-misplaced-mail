@@ -1,0 +1,31 @@
+# Godot 4 generated cache — always regenerated on import
+.godot/
+
+# Godot import metadata (auto-generated from .uid files)
+*.import
+
+# Web export engine binaries — large generated files (~36 MB WASM, ~309 KB JS)
+# Regenerate with: Godot --headless --export-release "Web" export/web/index.html --path .
+export/web/*.wasm
+export/web/*.js
+
+# Node.js / Capacitor leftovers (superseded by Godot web export)
+node_modules/
+package-lock.json
+package.json
+capacitor.config.json
+
+# Superseded Phaser 3 web rewrite (replaced by Godot web export fix)
+web/
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude Code session memory (local agent state, not project source)
+.claude/
+
+# Editor noise
+*.swp
+*~

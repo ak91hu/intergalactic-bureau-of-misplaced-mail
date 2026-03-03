@@ -1,0 +1,198 @@
+class_name AlgorithmAStar
+extends AlgorithmBase
+
+const INF: float = 1e9
+
+# Admissible h-values (using abs edge weights, treats -2 as 2)
+const H_VALUES: Dictionary = {
+	"redundancy": 5, "forms": 6, "delays": 10,
+	"stamps": 1, "lost": 4, "destination": 0
+}
+
+var _g: Dictionary = {}
+var _open: Array = []        # Array of [f: float, g: float, node_id: String]
+var _closed: Dictionary = {}
+var _prev: Dictionary = {}
+var _active_node: String = ""
+var _active_cost: float = 0.0
+var _active_neighbor_index: int = 0
+var _is_complete_flag: bool = false
+
+
+func get_name() -> String:
+	return "A* Search"
+
+
+func get_structure_label() -> String:
+	return ">> OPEN SET (f=g+h):"
+
+
+func get_welcome_message() -> String:
+	return "Welcome to the Intergalactic Bureau of Misplaced Mail.\n\nA* Search combines the cost-so-far (g) with a heuristic estimate (h) to guide the search more efficiently than Dijkstra.\n\nf(n) = g(n) + h(n). Lowest f is always expanded next.\n\nHeuristic briefing: the Office of Perpetual Delays has h=10 — it will be skipped entirely.\n\nPress 'Process Next Memo' to begin."
+
+
+func initialize(graph_data: Dictionary, start_node: String) -> Dictionary:
+	_g = {}
+	_open = []
+	_closed = {}
+	_prev = {}
+	_active_node = ""
+	_active_cost = 0.0
+	_active_neighbor_index = 0
+	_is_complete_flag = false
+	_initialized = true
+
+	for node_id: String in graph_data.keys():
+		_g[node_id] = INF
+		_prev[node_id] = ""
+
+	_g[start_node] = 0.0
+	var h: float = float(H_VALUES.get(start_node, 0))
+	_open.append([h, 0.0, start_node])
+
+	return {
+		"state_changes": [{"id": start_node, "state": "frontier"}],
+		"structure": _build_structure_display(graph_data),
+		"message": "A* SEARCH — FORM ASTAR-H1\nRE: Heuristic Pathfinding Protocol\n\nStarting at %s. g=0, h=%d, f=%d.\n\nHeuristics loaded. Delays has h=10 (very high — intuitively it leads away from destination). A* will evaluate lower-h nodes first, finding the optimal path with fewer expansions than Dijkstra." % [graph_data[start_node]["name"], int(h), int(h)],
+		"is_complete": false
+	}
+
+
+func advance(graph_data: Dictionary) -> Dictionary:
+	if _active_node.is_empty():
+		return _extract_min(graph_data)
+	else:
+		return _relax_next_neighbor(graph_data)
+
+
+func is_complete() -> bool:
+	return _is_complete_flag
+
+
+func _extract_min(graph_data: Dictionary) -> Dictionary:
+	while not _open.is_empty():
+		var entry: Array = _open[0]
+		_open.pop_front()
+		var f: float = entry[0]
+		var g: float = entry[1]
+		var node_id: String = entry[2]
+
+		if _closed.has(node_id):
+			return {
+				"state_changes": [],
+				"structure": _build_structure_display(graph_data),
+				"message": "STALE ENTRY DETECTED: %s (f=%d)\n\nThis open set entry is outdated — the node was already closed via a better path. Discarded per A* Protocol Annex H-1B (Lazy Deletion)." % [graph_data[node_id]["name"], int(f)],
+				"is_complete": false
+			}
+
+		_active_node = node_id
+		_active_cost = g
+		_active_neighbor_index = 0
+		_closed[node_id] = true
+
+		if node_id == "destination":
+			_is_complete_flag = true
+			return {
+				"state_changes": [{"id": _active_node, "state": "visited"}],
+				"structure": _build_structure_display(graph_data),
+				"message": "A* COMPLETE — DESTINATION REACHED\n\nf=%d (g=%d + h=0). Optimal path confirmed.\n\n%s\n\nNote: A* never expanded 'delays' (h=10 made it uncompetitive). Dijkstra would have expanded it. The heuristic saved work." % [int(f), int(g), _build_path_message(graph_data)],
+				"is_complete": true
+			}
+
+		var h: float = float(H_VALUES.get(node_id, 0))
+		return {
+			"state_changes": [{"id": _active_node, "state": "visited"}],
+			"structure": _build_structure_display(graph_data),
+			"message": "EXTRACTED (lowest f): %s\n\nf=%d (g=%d + h=%d). This node is now CLOSED. All neighbors will be evaluated for relaxation via A* f-score." % [graph_data[_active_node]["name"], int(f), int(g), int(h)],
+			"is_complete": false
+		}
+
+	_is_complete_flag = true
+	return {
+		"state_changes": [],
+		"structure": [],
+		"message": "A* COMPLETE — OPEN SET EXHAUSTED\n\nAll reachable nodes have been closed.\n\n%s" % _build_path_message(graph_data),
+		"is_complete": true
+	}
+
+
+func _relax_next_neighbor(graph_data: Dictionary) -> Dictionary:
+	var neighbors: Array = graph_data[_active_node]["neighbors"]
+
+	if _active_neighbor_index >= neighbors.size():
+		var completed_node: String = _active_node
+		_active_node = ""
+		return {
+			"state_changes": [],
+			"structure": _build_structure_display(graph_data),
+			"message": "RELAXATION COMPLETE: %s\n\nAll neighbors evaluated. Returning to extract next minimum-f node from OPEN SET." % graph_data[completed_node]["name"],
+			"is_complete": false
+		}
+
+	var neighbor_id: String = neighbors[_active_neighbor_index]
+	_active_neighbor_index += 1
+
+	if _closed.has(neighbor_id):
+		return {
+			"state_changes": [],
+			"structure": _build_structure_display(graph_data),
+			"message": "NEIGHBOR CLOSED: %s\n\nAlready expanded. No re-evaluation needed per A* optimality guarantee." % graph_data[neighbor_id]["name"],
+			"is_complete": false,
+			"examined_edge": {"from": _active_node, "to": neighbor_id}
+		}
+
+	var raw_weight: int = graph_data[_active_node]["weights"].get(neighbor_id, 0)
+	var weight: float = float(abs(raw_weight))
+	var new_g: float = _active_cost + weight
+	var h: float = float(H_VALUES.get(neighbor_id, 0))
+	var new_f: float = new_g + h
+
+	if new_g < _g[neighbor_id]:
+		_g[neighbor_id] = new_g
+		_prev[neighbor_id] = _active_node
+		_open.append([new_f, new_g, neighbor_id])
+		_open.sort()
+		return {
+			"state_changes": [{"id": neighbor_id, "state": "frontier"}],
+			"structure": _build_structure_display(graph_data),
+			"message": "OPEN SET UPDATED: %s\n\ng=%d + h=%d = f=%d. Added to OPEN SET via %s (edge weight: %d). The heuristic rates this route as promising." % [graph_data[neighbor_id]["name"], int(new_g), int(h), int(new_f), graph_data[_active_node]["name"], int(weight)],
+			"is_complete": false,
+			"examined_edge": {"from": _active_node, "to": neighbor_id}
+		}
+	else:
+		return {
+			"state_changes": [],
+			"structure": _build_structure_display(graph_data),
+			"message": "NO IMPROVEMENT: %s\n\nExisting g=%d is no worse than new g=%d. No update filed. The existing path holds." % [graph_data[neighbor_id]["name"], int(_g[neighbor_id]), int(new_g)],
+			"is_complete": false,
+			"examined_edge": {"from": _active_node, "to": neighbor_id}
+		}
+
+
+func _build_structure_display(graph_data: Dictionary) -> Array:
+	var result: Array = []
+	var shown: Dictionary = {}
+	for entry: Array in _open:
+		var node_id: String = entry[2]
+		if not _closed.has(node_id) and not shown.has(node_id):
+			result.append("[f=%d g=%d] — %s" % [int(entry[0]), int(entry[1]), graph_data[node_id]["name"]])
+			shown[node_id] = true
+	return result
+
+
+func _build_path_message(graph_data: Dictionary) -> String:
+	var target: String = "destination"
+	if _g[target] >= INF:
+		return "Destination unreachable."
+
+	var path: Array[String] = []
+	var current: String = target
+	while not current.is_empty():
+		path.push_front(current)
+		current = _prev[current]
+
+	var path_names: Array = []
+	for node_id: String in path:
+		path_names.append(graph_data[node_id]["name"])
+
+	return "Optimal path:\n%s\nTotal cost: %d" % [" -> ".join(path_names), int(_g[target])]
