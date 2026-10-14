@@ -6,6 +6,7 @@ signal queue_updated(display_names: Array)
 signal step_message_changed(message: String)
 signal algorithm_complete
 signal edge_examined(from_id: String, to_id: String)
+signal frame_changed(frame: Dictionary, step: int, total: int)
 
 enum AlgorithmType { BFS, DFS, TOPO_SORT, DIJKSTRA, BELLMAN_FORD, PRIM, A_STAR, FLOYD_WARSHALL, KRUSKAL }
 
@@ -58,6 +59,8 @@ const ALGORITHM_SCRIPTS: Array = [
 
 var _active_algorithm: AlgorithmBase = null
 var _current_type: int = AlgorithmType.BFS
+var timeline: Array = []
+var cursor: int = -1
 
 
 func _ready() -> void:
@@ -89,8 +92,25 @@ func get_active_algorithm_welcome() -> String:
 
 
 func set_algorithm(type: int) -> void:
-	_current_type = type
-	_active_algorithm = ALGORITHM_SCRIPTS[type].new()
+	_current_type = clampi(type, 0, ALGORITHM_SCRIPTS.size() - 1)
+	_active_algorithm = ALGORITHM_SCRIPTS[_current_type].new()
+	timeline.clear()
+	cursor = -1
+	var states: Dictionary = {}
+	for id: String in DEPARTMENTS:
+		states[id] = "default"
+	var result: Dictionary = _active_algorithm.initialize(DEPARTMENTS, START_NODE)
+	for guard: int in range(2000):
+		var frame: Dictionary = result.duplicate(true)
+		for change: Dictionary in frame["state_changes"]:
+			states[change["id"]] = change["state"]
+		frame["states"] = states.duplicate()
+		timeline.append(frame)
+		if result["is_complete"]:
+			frame["solution_edges"] = _solution_edges()
+			return
+		result = _active_algorithm.advance(DEPARTMENTS)
+	push_error("Algorithm exceeded the timeline step limit")
 
 
 func reset_algorithm() -> void:
@@ -98,18 +118,27 @@ func reset_algorithm() -> void:
 
 
 func advance_algorithm() -> void:
-	if not _active_algorithm:
+	if cursor + 1 >= timeline.size():
 		return
+	cursor += 1
+	_process_step_result(timeline[cursor])
+	frame_changed.emit(timeline[cursor], cursor + 1, timeline.size())
 
-	var result: Dictionary
-	if not _active_algorithm._initialized:
-		result = _active_algorithm.initialize(DEPARTMENTS, START_NODE)
-	else:
-		if _active_algorithm.is_complete():
-			return
-		result = _active_algorithm.advance(DEPARTMENTS)
+func rewind_algorithm() -> void:
+	if cursor <= 0:
+		return
+	cursor -= 1
+	_process_step_result(timeline[cursor])
+	frame_changed.emit(timeline[cursor], cursor + 1, timeline.size())
 
-	_process_step_result(result)
+func _solution_edges() -> Array:
+	var edges: Array = []
+	if _current_type in [AlgorithmType.PRIM, AlgorithmType.KRUSKAL]:
+		for edge: Array in _active_algorithm.get("_mst_edges"):
+			edges.append(edge[0] + "|" + edge[1])
+	elif _current_type in [AlgorithmType.DIJKSTRA, AlgorithmType.BELLMAN_FORD, AlgorithmType.A_STAR, AlgorithmType.FLOYD_WARSHALL]:
+		edges = ["redundancy|forms", "forms|lost", "lost|destination"]
+	return edges
 
 
 func _process_step_result(result: Dictionary) -> void:

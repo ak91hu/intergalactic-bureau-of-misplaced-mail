@@ -1,6 +1,10 @@
 extends SceneTree
 
 const SUITES: Array = [
+	preload("res://tests/test_trees.gd"),
+	preload("res://tests/test_courier.gd"),
+	preload("res://tests/test_missions.gd"),
+	preload("res://tests/test_progress.gd"),
 	preload("res://tests/test_contract.gd"),
 	preload("res://tests/test_bfs.gd"),
 	preload("res://tests/test_dfs.gd"),

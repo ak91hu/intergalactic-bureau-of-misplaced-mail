@@ -98,7 +98,7 @@ func advance(graph_data: Dictionary) -> Dictionary:
 		return {
 			"state_changes": [],
 			"structure": _build_structure_display(graph_data),
-			"message": msg + "\n\nFW COMPLETE — redundancy->destination = %s (3 + -2 + 4 = 5).\nDijkstra said 9. One of them is wrong. Director Zorp knows which." % rd_str,
+			"message": msg + "\n\nFW COMPLETE — redundancy->destination = %s (3 + -2 + 4 = 5).\nOriginal costs give 5; Dijkstra uses absolute costs and gets 9. Different lane policies." % rd_str,
 			"is_complete": true
 		}
 

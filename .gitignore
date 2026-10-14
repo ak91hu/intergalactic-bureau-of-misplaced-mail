@@ -29,3 +29,7 @@ desktop.ini
 # Editor noise
 *.swp
 *~
+
+# Generated builds and visual QA
+export/
+qa/

@@ -132,6 +132,9 @@ func is_complete() -> bool:
 
 func _finalize(graph_data: Dictionary) -> Dictionary:
 	_is_complete_flag = true
+	for edge: Array in _edges:
+		if _dist[edge[0]] < INF and _dist[edge[0]] + edge[2] < _dist[edge[1]]:
+			return {"state_changes": [], "structure": _build_structure_display(graph_data), "message": "NEGATIVE CYCLE DETECTED — an edge still improves after V-1 passes.\nNo finite shortest route is available through this reachable cycle. Suspend delivery and report the anomaly.", "is_complete": true, "negative_cycle": true}
 	# Mark path nodes as visited
 	var state_changes: Array = []
 	var target: String = "destination"
@@ -173,4 +176,4 @@ func _build_path_message(graph_data: Dictionary) -> String:
 	for node_id: String in path:
 		path_names.append(graph_data[node_id]["name"])
 
-	return "%s — cost %d (Dijkstra would've said 9). One of them is correct. Hint: it's Bellman-Ford." % [" -> ".join(path_names), _dist[target]]
+	return "%s — cost %d with signed weights. Dijkstra's absolute-weight lane policy gives a different cost." % [" -> ".join(path_names), _dist[target]]

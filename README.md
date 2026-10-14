@@ -1,230 +1,105 @@
 # The Intergalactic Bureau of Misplaced Mail
 
-> *"A package of unknown origin is somewhere in our facility. We will use the power of algorithms to locate it — one agonizing bureaucratic step at a time."*
+A Godot educational game about nine graph algorithms, disguised as a dysfunctional space post office. **Version 3 adds a Hungarian courier academy with 27 learning missions:** work the algorithm yourself, choose the actual delivery route or network connections, and compare your cost with the optimum.
 
-A **Godot 4** interactive algorithm visualizer framed as a deeply dysfunctional intergalactic post office. Step through **9 classic graph algorithms** one decision at a time, watch nodes light up as they are discovered and finalized, and read bureaucratic memos that explain every algorithmic choice in plain terms.
+**Version 3.1 adds BST, AVL and red-black trees: 12 topics and 36 academy lessons in total.** Tree missions teach insertion, individual comparisons, both rotations, color repairs, search and inorder traversal. Quiet ambient music and soft button sounds have independent controls; music volume saves locally. Campaign and tree autoplay show complete unscored demonstrations at three speeds. Original lab autoplay pauses for checkpoint answers and resumes afterwards.
 
-Built without any external libraries — pure GDScript, programmatic UI, and `_draw()` rendering.
+**Version 3.2 adds a Hungarian dispatcher guide throughout the app.** It explains the current task, the next action, recoverable mistakes, parcel travel, autoplay/pause and saved results. Audio/motion changes acknowledge their saved state. Failed result saves offer a retry instead of claiming success. Tree questions and answers stay ahead of optional technical details.
 
----
+The refreshed graphics give the academy an original animated space-mail illustration, illustrated topic cards and a gradient starfield. Map stations and tree nodes have shaded planetary surfaces; selected routes glow, and envelopes leave a short trail during delivery. Rounded controls, themed scrollbars and clearer stage indicators keep the interface consistent. Sound and motion settings are below the academy's topic cards; reduced motion stops the decorative animation too. All artwork is rendered locally from vector drawing code.
 
-## What It Looks Like
+**Tanulj algoritmust. Tervezz. Kézbesíts.** A magyar futárküldetésekben a saját döntésed változtatja az útvonalat, a költséget és a küldetés eredményét. Látható adatstruktúrák, képletek, pszeudokód és magyarázatok segítik a tanulást.
 
-```
-        [REDUNDANCY DEPT.]  ← start
-            /          \
-         cost 3        cost 1
-          /                \
-   [FORMS]              [DELAYS]
-    /      \                  \
-cost 8   cost -2           cost 6
-  /           \                 \
-[STAMPS]    [LOST]──────────────┘
-    \          /
-  cost 1   cost 4
-      \      /
-   [DESTINATION]  ← end
-```
+## Play
 
-The **-2 edge** (Forms → Lost) is the centrepiece of the graph. It lets you directly compare:
-- **Dijkstra** (uses `abs(-2)=2`) → finds path cost **9**
-- **Bellman-Ford / Floyd-Warshall** (uses real -2) → finds path cost **5**
+- **Windows:** double-click `Play.cmd`, or run `export/windows/MisplacedMail.exe`. The exported game needs no Godot installation.
+- **Godot editor:** use **Godot 4.7.2 stable**, open `project.godot`, and press F5.
+- **Browser:** after building, run `python export/web/server.py` and open `http://localhost:8080`. Serve over HTTP instead of opening `index.html` as a file.
 
-Frontier nodes **pulse with an amber glow**. Examined edges **flash cyan** on screen. A **twinkling starfield** renders behind the graph.
+There are no external game libraries, addons or package-manager dependencies. The engine and export templates are pinned to [Godot 4.7.2 stable](https://godotengine.org/download/archive/4.7.2-stable/), the current stable 4.x release as checked on 2026-10-14. GitHub Actions use checkout 7.0.1 and upload-artifact 7.0.2, pinned to commit hashes. Inter is bundled locally with its SIL Open Font License for Hungarian text and mathematical symbols.
 
----
+## Courier academy / Futárakadémia
 
-## Algorithms
+- Three progressive tiers for every algorithm: 6–8 stations, varied costs, recipients, optional connections and closed lanes. Generate a new reproducible map with “Új hálózat”.
+- Real route choices after planning; costs can cause budget failure or a dead end. Prim/Kruskal build the actual selected network; topological sort executes a legal prerequisite order.
+- Visible FIFO/LIFO, predecessor table, relaxation arithmetic, A* g/h/f, components and a clickable all-pairs matrix. Highlighted pseudocode, Hungarian feedback, a complete guide and a step journal explain decisions.
+- Reports compare actual cost with the optimum and state the learning takeaway. DFS explicitly does not promise a shortest route. Advanced Floyd–Warshall uses two separate senders.
+- Hints, undo and replan; no timer or locked lessons. Local medals, best-score XP, suggested next lesson and a daily map variant.
+- A readable space-postal map, curved lanes, collision-aware labels, actual parcel travel, keyboard choices, optional sound and reduced motion.
 
-All 9 algorithms run on the same fixed 6-node directed weighted graph.
+The **Algoritmuslabor** button retains the previous visualizer, checkpoint missions, practice and old progress. Its original English narration remains available.
 
-| # | Algorithm | Form Code | Category | Difficulty | What it finds |
-|---|---|---|---|---|---|
-| 1 | BFS — Breadth-First Search | BFS-9A | Traversal | Easy | Fewest-hop path |
-| 2 | DFS — Depth-First Search | DFS-2B | Traversal | Easy | Any path (depth-first) |
-| 3 | Topological Sort (Kahn's) | TOPO-7K | Ordering | Medium | Valid dependency order |
-| 4 | Dijkstra | DIJ-1138 | Shortest Path | Medium | Shortest path (abs weights) |
-| 5 | Bellman-Ford | BF-404 | Shortest Path | Hard | Shortest path (negative weights OK) |
-| 6 | Prim's MST | MST-42 | Spanning Tree | Hard | Minimum Spanning Tree (greedy-local) |
-| 7 | A* Search | ASTAR-H1 | Heuristic Search | Hard | Shortest path (heuristic-guided) |
-| 8 | Floyd-Warshall | FW-INF | All-Pairs Path | Hard | All-pairs shortest paths |
-| 9 | Kruskal's MST | KRU-7F | Spanning Tree | Medium | Minimum Spanning Tree (global-sort) |
+## Original lab features
 
-**Notable contrasts built into the graph:**
+- Nine missions with three decisions each. Traversal, ordering, Dijkstra, Prim and A* ask about the next processed department; Kruskal asks about the next connection; Bellman-Ford and Floyd-Warshall ask about relaxation and route costs.
+- Shuffled answer positions, direct department selection on the map, streak bonuses, hints and feedback after mistakes. No timers or locked missions.
+- Bronze for finishing, silver for at least two correct answers, gold for three correct without hints. Perfect score: **425 points**. Each hint reduces a correct answer's score by 25 points once.
+- Best scores, medals, sound and reduced-motion settings save locally. Total XP is the sum of personal bests, so repeated runs cannot inflate it.
+- A suggested next mission and a daily assignment (UTC day, rotating through the same nine missions).
+- Practice mode with rewind, three auto-play speeds, restart and an in-game algorithm guide.
+- A map fitted to the available space, persistent route/tree highlighting on completion, zoom, pan and a fit-map shortcut.
+- Larger text, clear keyboard focus, descriptive node states, optional sound cues and reduced motion.
+- Reproducible Windows and single-threaded web exports, plus automated algorithm, gameplay, persistence and UI tests.
 
-| Comparison | Result |
-|---|---|
-| Dijkstra vs Bellman-Ford | Same path, costs 9 vs 5 — the -2 edge is the difference |
-| Prim's vs Kruskal's | Same MST weight (11), opposite discovery strategies |
-| A* vs Dijkstra | Same cost-9 path, A* skips "delays" entirely (h=10 keeps it out) |
-| Bellman-Ford vs Floyd-Warshall | Both find cost 5, but FW computes all-pairs at once |
+## Courier controls
 
----
+| Action | Control |
+| --- | --- |
+| Choose | Button, station/edge click, or 1–9 |
+| Single offered action | Enter / Space |
+| Undo | Z / Backspace |
+| Hint | H |
+| Explain algorithm / journal | I / L |
+| Floyd matrix / map | M |
+| Academy / close guide | Esc |
 
-## How to Play
+See [GAME_GUIDE.md](GAME_GUIDE.md) for the Hungarian player guide, tier rules and grading.
 
-### In the Browser (pre-exported)
+## Original lab controls
 
-The game is pre-exported to `export/web/`. Serve it from that directory:
+| Action | Control |
+| --- | --- |
+| Next dispatch | Space or button |
+| Choose an answer | 1 / 2 / 3, answer button, or highlighted department |
+| Request hint | H |
+| Auto / pause | A |
+| Restart mission | R |
+| Rewind in practice | Left or Back |
+| Algorithm guide | I |
+| Fit graph | F |
+| Zoom / pan | Mouse wheel / middle-button drag |
+| Mission desk / close guide | Esc |
 
-```bash
-cd export/web
-python server.py
-```
+Choose `Mode: missions` or `Mode: practice` on the desk before opening an algorithm.
 
-Then open **http://localhost:8080** in Chrome or Firefox.
+## Build and test
 
-> Use `server.py` — not `python -m http.server`. The custom server sets the required
-> `Cross-Origin-Opener-Policy` and `Cross-Origin-Embedder-Policy` headers that
-> Godot 4's WebAssembly runtime needs.
+Install Godot **4.7.2 stable** and its matching standard export templates. PowerShell 7 works on Windows and Linux:
 
-### In the Godot Editor
-
-1. Install [Godot 4](https://godotengine.org/download/) (tested on 4.6.1 stable)
-2. Open Godot → **Import** → select `project.godot`
-3. Press **F5** to run
-
-No export templates, plugins, or external dependencies required.
-
-### Controls
-
-| Action | How |
-|---|---|
-| Select algorithm | Click a card on the main menu |
-| Step forward | Press **"Process Next Memo"** |
-| Read explanation | Check the memo panel at the bottom |
-| See internal state | Check the structure display (queue/stack/distances) |
-| Pan the graph | Click and drag anywhere on the graph area |
-| Reset | Press the **Reset** button |
-| Get algorithm info | Press the **[i] Info** button |
-| Return to menu | Press **< Menu** (top-left) |
-
----
-
-## Re-Exporting for Web
-
-If you change any `.gd` files, re-export and hard-refresh the browser:
-
-```bash
-# Requires Godot 4.6.1 export templates to be installed
-Godot_v4.6.1-stable_win64.exe \
-  --headless --export-release "Web" "export/web/index.html" \
-  --path "C:/path/to/myFirstGame"
+```powershell
+./scripts/build.ps1 -Godot 'C:/path/to/Godot_v4.7.2-stable_win64_console.exe'
+./scripts/build.ps1 -Godot '/path/to/godot' -Target Tests
+./scripts/build.ps1 -Godot '/path/to/godot' -Target Web
 ```
 
-Then press `Ctrl+Shift+R` in the browser to hard-refresh.
+Alternatively set `GODOT_EXECUTABLE`, or put `godot` / `godot4` on PATH. The script imports resources, runs all four source test entry points, clears the checked in-project scene export cache, exports the selected targets and verifies each pack in isolation. It stops on runtime errors as well as nonzero exit codes. Outputs under `export/` are intentionally untracked.
 
----
-
-## Architecture
-
-The project uses a **Strategy pattern** — each algorithm is a self-contained `RefCounted` object that receives graph data and returns a `StepResult` dictionary on every call.
-
-```
-GraphManager
-  ├── ALGORITHM_SCRIPTS[0..8]    ← preloaded algorithm classes
-  ├── _active_algorithm          ← current AlgorithmBase subclass
-  └── advance_algorithm()        ← routes to initialize() or advance()
-           │
-           │  emits signals:
-           ├── node_state_changed(id, state)   → DepartmentNode.set_visual_state()
-           ├── queue_updated(items)             → GameUI.update_queue_display()
-           ├── step_message_changed(msg)        → GameUI.update_message()
-           ├── edge_examined(from_id, to_id)   → Main._on_edge_examined()  [edge flash]
-           └── algorithm_complete              → GameUI.disable_advance_button()
+```text
+godot --headless --path . --script res://tests/runner.gd
+godot --headless --path . --script res://tests/ui_smoke.gd
+godot --headless --path . --script res://tests/courier_ui.gd
+godot --headless --path . --script res://tests/tree_ui.gd
 ```
 
-Every `advance()` call returns a `StepResult` dict:
+For rendered QA, run each UI runner without `--headless` and append `-- --screenshots`. Screenshots appear under `qa/`. The campaign runner plays all 27 lessons and checks map/edge/matrix input, navigation, labels, guides, recovery and animated delivery. The lab runner covers all nine original missions. The tree runner plays all nine tree lessons manually and automatically, all 27 campaign demos, and lab auto/checkpoint resume flows. UI runners select separate test save files before making changes, so an interrupted test cannot write to the player's progress file; run them sequentially.
 
-```gdscript
-{
-    "state_changes": [{"id": "forms", "state": "frontier"}],  # node color updates
-    "structure":     ["[f=9 g=3] — Bureau of Forms"],          # structure panel
-    "message":       "RELAXATION: ...",                        # memo text
-    "is_complete":   false,
-    "examined_edge": {"from": "redundancy", "to": "forms"}     # optional: triggers edge flash
-}
-```
+## Original lab lane rules
 
-### File Map
+The graph has six departments and seven directed edges. **Forms -> Lost has weight -2.**
 
-| File | Role |
-|---|---|
-| `Main.gd` | Orchestrator — builds visuals, wires signals, starfield, edge flash |
-| `GraphManager.gd` | Owns graph data + active algorithm, emits all signals |
-| `GameUI.gd` | Bottom panel — memo, structure display, buttons, info popup |
-| `DepartmentNode.gd` | Per-node visual — renders via `_draw()`, animated frontier glow |
-| `MenuScene.gd` | Main menu — 9 clickable algorithm cards (3×3 grid) |
-| `GameState.gd` | Autoload singleton — carries `selected_algorithm` between scenes |
-| `AlgorithmBase.gd` | Base class (RefCounted) — defines the algorithm interface |
-| `AlgorithmBFS/DFS/TopoSort/Dijkstra/BellmanFord/Prim/AStar/FloydWarshall/Kruskal.gd` | 9 algorithm implementations |
+- Bellman-Ford and Floyd-Warshall use original signed costs: HQ -> Forms -> Lost -> Delivery costs **3 - 2 + 4 = 5**.
+- Dijkstra and A* demonstrate nonnegative costs by using absolute weights: the same route costs **3 + 2 + 4 = 9**. Both results are correct for their displayed lane policies.
+- Prim and Kruskal demonstrate an undirected graph with absolute weights. Both find a tree with total cost **11**.
+- BFS and DFS ignore weights when choosing their traversal.
 
----
-
-## Documentation
-
-| Document | Audience | Contents |
-|---|---|---|
-| [`README.md`](README.md) | Everyone | This file — overview, setup, quick reference |
-| [`PROJECT.md`](PROJECT.md) | Developers | Full architecture, script reference, signal flow, StepResult contract, adding new algorithms, known pitfalls |
-| [`GAME_GUIDE.md`](GAME_GUIDE.md) | Players / learners | How to play, algorithm explanations, color guide, comparison tables, common questions |
-| [`CLAUDE.md`](CLAUDE.md) | AI agents | Codebase instructions for Claude Code — scene structure, conventions, export commands |
-
----
-
-## Visual Design
-
-Galaxy / Material Design 3 dark palette — all defined as inline constants, no shared theme resource.
-
-| Element | Color | Role |
-|---|---|---|
-| Background | `#080510` (deep space) | Scene background |
-| Primary | `#8552FF` (nebula violet) | Buttons, borders, chips |
-| Secondary | `#16E0D1` (cosmic cyan) | Edge flash, info highlights |
-| Tertiary / Frontier | `#FFB81F` (amber) | Active / in-queue nodes |
-| Nodes — default | `#120D21` | Undiscovered |
-| Nodes — frontier | `#241404` + amber border + pulsing glow | Active |
-| Nodes — visited | `#17141F` + dim border | Processed |
-
-All rendering uses `_draw()` + programmatic `Line2D` — no sprites or textures.
-
----
-
-## Project Structure
-
-```
-myFirstGame/
-├── *.gd                        # All GDScript source files
-├── *.tscn                      # Scene files (Main.tscn, DepartmentNode.tscn, MenuScene.tscn)
-├── *.uid                       # Godot resource ID files (auto-managed)
-├── project.godot               # Godot project configuration
-├── export_presets.cfg          # Web export configuration
-├── export/web/
-│   ├── index.html              # Game launcher shell
-│   ├── index.pck               # Compiled game scripts + scenes (~105 KB)
-│   ├── index.wasm              # Godot engine (WebAssembly, ~36 MB — gitignored)
-│   ├── index.js                # Godot JavaScript glue (~309 KB — gitignored)
-│   └── server.py               # Dev server (sets required COOP/COEP headers)
-├── README.md                   # This file
-├── PROJECT.md                  # Developer documentation
-├── GAME_GUIDE.md               # Player / learner guide
-└── CLAUDE.md                   # AI agent instructions
-```
-
----
-
-## Contributing
-
-The cleanest way to add a new algorithm:
-
-1. Create `AlgorithmYourAlgo.gd` extending `AlgorithmBase` — implement `initialize()`, `advance()`, `is_complete()`.
-2. Add a `preload()` entry to `GraphManager.ALGORITHM_SCRIPTS` and extend the `AlgorithmType` enum.
-3. Extend the four parallel arrays in `GameUI.gd` (form code, structure label, name, info dict).
-4. Add a card entry to `MenuScene.CARD_DATA`.
-5. Re-export and verify.
-
-See [`PROJECT.md`](PROJECT.md) for the full step-by-step guide and the `StepResult` contract.
-
----
-
-*The Bureau assumes no liability for packages that arrive in the wrong century.*
+Campaign maps use their generated displayed costs, closures and reconstructed routes. See [PROJECT.md](PROJECT.md) for architecture, [THIRD_PARTY.md](THIRD_PARTY.md) for assets, and [VALIDATION.md](VALIDATION.md) for current verification and limitations. Source is maintained in the [GitHub repository](https://github.com/ak91hu/intergalactic-bureau-of-misplaced-mail); the verification workflow exports Windows and web packages as downloadable build artifacts.
